@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Mentra Sphere</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['Nunito', 'sans-serif'],
+              serif: ['Playfair Display', 'serif'],
+            },
+            colors: {
+              sage: {
+                50: '#F1F8E9',
+                100: '#DCEDC8',
+                200: '#C5E1A5',
+                300: '#AED581',
+                400: '#9CCC65',
+                500: '#8BC34A',
+                600: '#7CB342',
+                700: '#689F38',
+                800: '#558B2F',
+                900: '#33691E', // Deep Forest Green
+              },
+              cream: '#FCFDFB',
+            }
+          }
+        }
+      }
+    </script>
+    <style>
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        background-color: #F1F8E9; /* sage-50 */
+      }
+      
+      /* --- Butterfly Animations --- */
+      @keyframes wingFlap {
+        0%, 100% { transform: scaleX(1); }
+        50% { transform: scaleX(0.2); }
+      }
+
+      /* Path 1: Enters left, sits in middle-left (Badge), flies right */
+      @keyframes flyPath1 {
+        0% { transform: translate(-10vw, 30vh) rotate(45deg) scale(0.6); }
+        30% { transform: translate(25vw, 10vh) rotate(10deg) scale(0.7); } 
+        40% { transform: translate(32vw, 15vh) rotate(0deg) scale(0.7); } /* Land start */
+        60% { transform: translate(32vw, 15vh) rotate(0deg) scale(0.7); } /* Land end */
+        70% { transform: translate(40vw, 5vh) rotate(-10deg) scale(0.7); }
+        100% { transform: translate(110vw, -20vh) rotate(15deg) scale(0.6); }
+      }
+
+      /* Path 2: Hovers bottom right, sits near arrow, loops */
+      @keyframes flyPath2 {
+        0% { transform: translate(90vw, 80vh) rotate(-20deg) scale(0.5); }
+        25% { transform: translate(70vw, 60vh) rotate(-10deg) scale(0.6); }
+        40% { transform: translate(50vw, 85vh) rotate(0deg) scale(0.6); } /* Land start */
+        60% { transform: translate(50vw, 85vh) rotate(0deg) scale(0.6); } /* Land end */
+        80% { transform: translate(20vw, 70vh) rotate(10deg) scale(0.5); }
+        100% { transform: translate(-10vw, 50vh) rotate(20deg) scale(0.5); }
+      }
+
+      /* Path 3: High background cross */
+      @keyframes flyPath3 {
+        0% { transform: translate(110vw, 10vh) rotate(-10deg) scale(0.4); }
+        50% { transform: translate(50vw, -10vh) rotate(0deg) scale(0.4); }
+        100% { transform: translate(-10vw, 20vh) rotate(10deg) scale(0.4); }
+      }
+
+      .butterfly-container {
+        position: absolute;
+        top: 0;
+        left: 0;
+        z-index: 20;
+        pointer-events: none;
+        will-change: transform;
+      }
+
+      .path-1 { animation: flyPath1 18s ease-in-out infinite; }
+      .path-2 { animation: flyPath2 24s ease-in-out infinite; animation-delay: 2s; }
+      .path-3 { animation: flyPath3 20s linear infinite; animation-delay: 5s; }
+
+      .butterfly-wings {
+        transform-origin: center;
+        animation: wingFlap 0.18s ease-in-out infinite;
+      }
+
+      /* --- General Animations --- */
+      .fade-in-up {
+        opacity: 0;
+        transform: translateY(30px);
+        animation: fadeInUp 1s ease-out forwards;
+      }
+      
+      @keyframes fadeInUp {
+        to { opacity: 1; transform: translateY(0); }
+      }
+
+      .glass-panel {
+        background: rgba(255, 255, 255, 0.65);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.4);
+        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+      }
+      
+      .hero-bg {
+        /* Updated to a serene, lush green landscape with a large flowing water body (Yosemite Valley style) */
+        background-image: url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=2600&auto=format&fit=crop');
+        background-size: cover;
+        background-position: center;
+        background-attachment: scroll; 
+      }
+      
+      @media (min-width: 768px) {
+        .hero-bg {
+           background-attachment: fixed;
+        }
+      }
+
+      .reveal-on-scroll {
+        opacity: 0;
+        transform: translateY(30px);
+        transition: all 1s ease-out;
+      }
+      .reveal-on-scroll.is-visible {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react/": "https://esm.sh/react@^19.2.4/",
+    "react": "https://esm.sh/react@^19.2.4",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
+    "lucide-react": "https://esm.sh/lucide-react@^0.563.0",
+    "@google/genai": "https://esm.sh/@google/genai@^1.39.0",
+    "@emailjs/browser": "https://esm.sh/@emailjs/browser@3.11.0"
+  }
+}
+</script>
+</head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>
